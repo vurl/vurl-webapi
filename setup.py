@@ -12,6 +12,7 @@ with open(join(dirname(__file__), 'vurl.py')) as f:
 dependencies = [
     'yhttp >= 2.5, < 3',
     'redis',
+    'hashids',
 ]
 
 

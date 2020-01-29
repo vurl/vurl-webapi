@@ -2,7 +2,6 @@ import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 import os
-import random
 import string
 
 import pytest
@@ -13,11 +12,11 @@ from vurl import app
 
 
 @pytest.fixture
-def randommock():
-    backup = random.randint
-    random.randint = lambda a, b: 0xF00
+def urandommock():
+    backup = os.urandom
+    os.urandom = lambda c: string.ascii_letters.encode()[:c]
     yield
-    random.randint = backup
+    os.unrandom = backup
 
 
 @pytest.fixture
@@ -33,20 +32,26 @@ def redismock():
         def set(self, key, value):
             self.maindict[key] = value
 
+        def setnx(self, key: str, value):
+            if not self.maindict.get(key):
+                self.set(key, value)
+                return 1
+            return 0
+
     backup = vurl.redis
     vurl.redis = RedisMock()
     yield vurl.redis
     vurl.redis = backup
 
 
-def test_shortener(randommock, redismock):
+def test_shortener(urandommock, redismock):
     with Given(
         app,
         verb='POST',
         json=dict(url='http://example.com')
     ):
         assert status == 201
-        assert response.text == 'f00'
+        assert response.text == 'LJO1vnZOE4'
 
         when(json=dict(url='invalidurl'))
         assert status == 400

@@ -1,19 +1,31 @@
-import random
+import os
 
 import redis
+from hashids import Hashids
 from yhttp import Application, text, statuses, validate, statuscode
 
 
-__version__ = '0.1.0'
+__version__ = '0.2.0'
+
+
+hashids = Hashids()
 
 
 app = Application()
 redis = redis.Redis()
 
 
+def getfreshid():
+    randomint = int.from_bytes(os.urandom(6), 'big')
+    return hashids.encode(randomint)
+
+
 def store(url):
-    freshid = hex(random.randint(0x0001, 0xFFFF))[2:]
-    redis.set(freshid, url)
+    while True:
+        freshid = getfreshid()
+        if redis.setnx(freshid, url):
+            break
+
     return freshid
 
 
