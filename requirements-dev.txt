@@ -1,0 +1,4 @@
+bddrest
+pytest-cov
+pytest-pudb
+ipython
