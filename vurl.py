@@ -39,12 +39,10 @@ def get(req, key):
 
 
 @app.route()
-@validate(fields=dict(
-    url=dict(
-        required='400 Field missing: url',
-        pattern=(r'^https?://.*', '400 Invalid URL')
-    )
-))
+@validate(fields=dict(url=dict(
+    required='400 Field missing: url',
+    pattern=(r'^https?://.*', '400 Invalid URL')
+)))
 @text
 @statuscode('201 Created')
 def post(req):
