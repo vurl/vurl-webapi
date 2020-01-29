@@ -17,12 +17,12 @@ dependencies = [
 
 
 setup(
-    name='vurl',
+    name='vurlwebapi',
     version=version,
     description='Url shortener web application',
     long_description=open('README.md').read(),
     install_requires=dependencies,
-    py_modules=['vurl'],
+    py_modules=['vurlwebapi'],
     entry_points=dict(console_scripts='vurl-webapi=vurlwebapi:app.climain'),
     license='MIT',
 )
