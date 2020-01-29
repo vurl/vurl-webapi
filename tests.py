@@ -48,7 +48,7 @@ def test_shortener(urandommock, redismock):
     with Given(
         app,
         verb='POST',
-        json=dict(url='http://example.com')
+        json=dict(url='http://example.com/')
     ):
         assert status == 201
         assert response.text == 'LJO1vnZOE4'

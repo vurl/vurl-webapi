@@ -1,4 +1,5 @@
 import os
+from urllib.parse import quote
 
 import redis
 from hashids import Hashids
@@ -35,7 +36,9 @@ def get(req, key):
     if not longurl:
         raise statuses.notfound()
 
-    raise statuses.found(longurl.decode())
+    scheme, path = longurl.decode().split('://')
+    path = quote(path)
+    raise statuses.found(f'{scheme}://{path}')
 
 
 @app.route()
