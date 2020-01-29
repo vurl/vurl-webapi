@@ -6,7 +6,7 @@ from hashids import Hashids
 from yhttp import Application, text, statuses, validate, statuscode
 
 
-__version__ = '0.2.0'
+__version__ = '0.2.1'
 
 
 hashids = Hashids()
