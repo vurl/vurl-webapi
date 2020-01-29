@@ -4,6 +4,9 @@ import redis
 from yhttp import Application, text, statuses, validate, statuscode
 
 
+__version__ = '0.1.0'
+
+
 app = Application()
 redis = redis.Redis()
 
@@ -27,7 +30,7 @@ def get(req, key):
 @validate(fields=dict(
     url=dict(
         required='400 Field missing: url',
-        pattern=(r'^http://.*', '400 Invalid URL')
+        pattern=(r'^https?://.*', '400 Invalid URL')
     )
 ))
 @text
