@@ -5,7 +5,7 @@ from setuptools import setup
 
 
 # reading package's version (same way sqlalchemy does)
-with open(join(dirname(__file__), 'vurl.py')) as f:
+with open(join(dirname(__file__), 'vurlwebapi.py')) as f:
     version = re.match('.*__version__ = \'(.*?)\'', f.read(), re.S).group(1)
 
 
@@ -23,7 +23,7 @@ setup(
     long_description=open('README.md').read(),
     install_requires=dependencies,
     py_modules=['vurl'],
-    entry_points=dict(console_scripts='vurl=vurl:app.climain'),
+    entry_points=dict(console_scripts='vurl-webapi=vurlwebapi:app.climain'),
     license='MIT',
 )
 

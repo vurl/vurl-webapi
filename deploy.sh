@@ -29,7 +29,7 @@ echo "d /run/${INSTANCE} 0755 ${USERNAME} ${USERNAME} -" > /etc/tmpfiles.d/${INS
 
 echo "
 import os
-from vurl import app
+from vurlwebapi import app
 
 app.settings.loadfile('${CONFIGFILE}')
 app.ready()

@@ -7,8 +7,8 @@ import string
 import pytest
 from bddrest import Given, status, when, response, given
 
-import vurl
-from vurl import app
+import vurlwebapi
+from vurlwebapi import app
 
 
 @pytest.fixture

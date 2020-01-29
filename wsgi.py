@@ -1,4 +1,4 @@
-from vurl import app
+from vurlwebapi import app
 
 
 app.ready()
