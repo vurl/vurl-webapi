@@ -1,6 +1,6 @@
 
 .PHONY: cover
 cover:
-	py.test tests.py --cov=vurl
+	py.test tests.py --cov=vurlwebapi
 
 

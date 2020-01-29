@@ -8,7 +8,14 @@ import pytest
 from bddrest import Given, status, when, response, given
 
 import vurlwebapi
-from vurlwebapi import app
+
+
+@pytest.fixture
+def app():
+    app = vurlwebapi.app
+    app.ready()
+    yield app
+    app.shutdown()
 
 
 @pytest.fixture
@@ -44,7 +51,13 @@ def redismock():
     vurlwebapi.redis = backup
 
 
-def test_shortener(urandommock, redismock):
+def test_shortener(app, urandommock, redismock):
+    app.settings.merge(r'''
+    blacklist:
+      - ^https?://(www\.)?vurl\.ir.*
+    ''')
+    app.ready()
+
     with Given(
         app,
         verb='POST',
@@ -59,8 +72,24 @@ def test_shortener(urandommock, redismock):
         when(json=given - 'url')
         assert status == '400 Field missing: url'
 
+        # Blacklist
+        when(json=dict(url='http://vurl.ir'))
+        assert status == 409
 
-def test_redirector(redismock):
+        when(json=dict(url='https://vurl.ir'))
+        assert status == 409
+
+        when(json=dict(url='http://www.vurl.ir'))
+        assert status == 409
+
+        when(json=dict(url='https://www.vurl.ir'))
+        assert status == 409
+
+        when(json=dict(url='https://vurl.ir/foo'))
+        assert status == 409
+
+
+def test_redirector(app, redismock):
     redismock.set('foo', 'https://example.com')
     redismock.set('bar', 'https://example.com/\u265F')
     with Given(
