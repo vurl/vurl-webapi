@@ -38,10 +38,10 @@ def redismock():
                 return 1
             return 0
 
-    backup = vurl.redis
-    vurl.redis = RedisMock()
-    yield vurl.redis
-    vurl.redis = backup
+    backup = vurlwebapi.redis
+    vurlwebapi.redis = RedisMock()
+    yield vurlwebapi.redis
+    vurlwebapi.redis = backup
 
 
 def test_shortener(urandommock, redismock):
@@ -62,6 +62,7 @@ def test_shortener(urandommock, redismock):
 
 def test_redirector(redismock):
     redismock.set('foo', 'https://example.com')
+    redismock.set('bar', 'https://example.com/\u265F')
     with Given(
         app,
         url='/foo'
@@ -69,6 +70,10 @@ def test_redirector(redismock):
         assert status == 302
         assert response.headers['LOCATION'] == 'https://example.com'
 
-        when(url='/notexists')
+        when('/notexists')
         assert status == 404
+
+        when('/bar')
+        assert status == 302
+        assert response.headers['LOCATION'] == 'https://example.com/%E2%99%9F'
 
