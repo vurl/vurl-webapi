@@ -92,6 +92,7 @@ def test_shortener(app, urandommock, redismock):
 def test_redirector(app, redismock):
     redismock.set('foo', 'https://example.com')
     redismock.set('bar', 'https://example.com/\u265F')
+    redismock.set('baz', 'https://example.com/#/baz')
     with Given(
         app,
         url='/foo'
@@ -105,4 +106,8 @@ def test_redirector(app, redismock):
         when('/bar')
         assert status == 302
         assert response.headers['LOCATION'] == 'https://example.com/%E2%99%9F'
+
+        when('/baz')
+        assert status == 302
+        assert response.headers['LOCATION'] == 'https://example.com/%23/baz'
 
