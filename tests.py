@@ -27,7 +27,7 @@ def urandommock():
 
 
 @pytest.fixture
-def redismock():
+def redis():
 
     class RedisMock:
         def __init__(self):
@@ -45,13 +45,16 @@ def redismock():
                 return 1
             return 0
 
+        def flushdb(self):
+            self.maindict.clear()
+
     backup = vurlwebapi.redis
     vurlwebapi.redis = RedisMock()
     yield vurlwebapi.redis
     vurlwebapi.redis = backup
 
 
-def test_shortener(app, urandommock, redismock):
+def test_shortener(app, urandommock, redis):
     app.settings.merge(r'''
     blacklist:
       - ^https?://(www\.)?vurl\.ir.*
@@ -88,11 +91,22 @@ def test_shortener(app, urandommock, redismock):
         when(json=dict(url='https://vurl.ir/foo'))
         assert status == 409
 
+        # Encoding
+        redis.flushdb()
+        when(json=dict(url='https://example.com/#/baz'))
+        assert status == 201
+        assert redis.get(response.text) == b'https://example.com/#/baz'
 
-def test_redirector(app, redismock):
-    redismock.set('foo', 'https://example.com')
-    redismock.set('bar', 'https://example.com/\u265F')
-    redismock.set('baz', 'https://example.com/#/baz')
+        redis.flushdb()
+        when(json=dict(url='https://example.com/\u265F/baz'))
+        assert status == 201
+        assert redis.get(response.text) == b'https://example.com/%E2%99%9F/baz'
+
+
+def test_redirector(app, redis):
+    redis.set('foo', 'https://example.com')
+    redis.set('bar', 'https://example.com/%E2%99%9F')
+    redis.set('baz', 'https://example.com/#/baz')
     with Given(
         app,
         url='/foo'
@@ -109,5 +123,5 @@ def test_redirector(app, redismock):
 
         when('/baz')
         assert status == 302
-        assert response.headers['LOCATION'] == 'https://example.com/%23/baz'
+        assert response.headers['LOCATION'] == 'https://example.com/#/baz'
 

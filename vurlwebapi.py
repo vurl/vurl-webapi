@@ -47,9 +47,11 @@ def blacklist(value, container, field):
 @text
 @statuscode('201 Created')
 def post(req):
+    url = req.form['url'].encode()
+    url = quote(url, safe=':/#')
     while True:
         freshid = getfreshid()
-        if redis.setnx(freshid, req.form['url']):
+        if redis.setnx(freshid, url):
             break
 
     return freshid
@@ -61,9 +63,5 @@ def get(req, key):
     if not longurl:
         raise statuses.notfound()
 
-    scheme, path = longurl.decode().split('://')
-    path = quote(path)
-    raise statuses.found(f'{scheme}://{path}')
-
-
+    raise statuses.found(longurl.decode())
 
