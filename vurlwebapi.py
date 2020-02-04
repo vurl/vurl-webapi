@@ -25,15 +25,6 @@ def getfreshid():
     return hashids.encode(randomint)
 
 
-def store(url):
-    while True:
-        freshid = getfreshid()
-        if redis.setnx(freshid, url):
-            break
-
-    return freshid
-
-
 @app.when
 def ready(app):
     app.blacklist = set(re.compile(i) for i in app.settings.blacklist)
@@ -56,7 +47,12 @@ def blacklist(value, container, field):
 @text
 @statuscode('201 Created')
 def post(req):
-    return store(req.form['url'])
+    while True:
+        freshid = getfreshid()
+        if redis.setnx(freshid, req.form['url']):
+            break
+
+    return freshid
 
 
 @app.route('/(.*)')
